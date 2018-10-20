@@ -55,6 +55,8 @@ class PyTracer(object):
         self.stopped = False
         self._activity = False
 
+        self.chained_tracer = None
+
         self.in_atexit = False
         # On exit, self.in_atexit = True
         atexit.register(setattr, self, 'in_atexit', True)
@@ -150,6 +152,10 @@ class PyTracer(object):
         elif event == 'exception':
             self.last_exc_back = frame.f_back
             self.last_exc_firstlineno = frame.f_code.co_firstlineno
+
+        if self.chained_tracer:
+            self.chained_tracer = self.chained_tracer(frame, event, arg_unused)
+
         return self._trace
 
     def start(self):
@@ -170,12 +176,13 @@ class PyTracer(object):
                     #self.log("~", "starting on different threads")
                     return self._trace
 
+        self.chained_tracer = sys.gettrace()
         sys.settrace(self._trace)
         return self._trace
 
     def stop(self):
         """Stop this Tracer."""
-        # Get the activate tracer callback before setting the stop flag to be
+        # Get the active tracer callback before setting the stop flag to be
         # able to detect if the tracer was changed prior to stopping it.
         tf = sys.gettrace()
 
