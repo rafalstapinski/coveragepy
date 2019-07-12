@@ -573,7 +573,7 @@ class Coverage(object):
     def save(self):
         """Save the collected coverage data to the data file."""
         data = self.get_data()
-        data.write()
+        data.flush()
 
     def combine(self, data_paths=None, strict=False):
         """Combine together a number of similarly-named coverage data files.

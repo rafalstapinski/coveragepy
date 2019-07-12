@@ -147,7 +147,8 @@ class CoverageData(SimpleReprMixin):
 
     """
 
-    def __init__(self, basename=None, suffix=None, warn=None, debug=None):
+    def __init__(self, mode, basename=None, suffix=None, warn=None, debug=None):
+        self._mode = mode
         self._basename = os.path.abspath(basename or ".coverage")
         self._suffix = suffix
         self._warn = warn
@@ -159,9 +160,6 @@ class CoverageData(SimpleReprMixin):
         self._dbs = {}
         self._pid = os.getpid()
 
-        # Are we in sync with the data file?
-        self._have_used = False
-
         self._has_lines = False
         self._has_arcs = False
 
@@ -171,10 +169,13 @@ class CoverageData(SimpleReprMixin):
         self._query_context_ids = None
 
     def _choose_filename(self):
-        self._filename = self._basename
-        suffix = filename_suffix(self._suffix)
-        if suffix:
-            self._filename += "." + suffix
+        if "m" in self._mode:
+            self._filename = ":memory:"
+        else:
+            self._filename = self._basename
+            suffix = filename_suffix(self._suffix)
+            if suffix:
+                self._filename += "." + suffix
 
     def _reset(self):
         if self._dbs:
@@ -182,7 +183,6 @@ class CoverageData(SimpleReprMixin):
                 db.close()
         self._dbs = {}
         self._file_map = {}
-        self._have_used = False
         self._current_context_id = None
 
     def _create_db(self):
@@ -233,6 +233,8 @@ class CoverageData(SimpleReprMixin):
             if os.path.exists(self._filename):
                 self._open_db()
             else:
+                if 'r' in self._mode:
+                    raise CoverageException("Data file {} can't be opened for reading".format(self._filename))
                 self._create_db()
         return self._dbs[get_thread_id()]
 
@@ -581,10 +583,9 @@ class CoverageData(SimpleReprMixin):
                 file_be_gone(filename)
 
     def read(self):
-        with self._connect():       # TODO: doesn't look right
-            self._have_used = True
+        assert "r" in self._mode    # TODO: get rid of this.
 
-    def write(self):
+    def flush(self):
         """Write the collected coverage data to a file."""
         pass
 
@@ -594,9 +595,8 @@ class CoverageData(SimpleReprMixin):
             self._reset()
             self._choose_filename()
             self._pid = os.getpid()
-        if not self._have_used:
+        if "w" in self._mode and "r" not in self._mode:
             self.erase()
-        self._have_used = True
 
     def has_arcs(self):
         return bool(self._has_arcs)
