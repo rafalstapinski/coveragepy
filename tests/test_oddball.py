@@ -565,8 +565,6 @@ class ExecTest(CoverageTest):
 
     def test_unencodable_filename(self):
         # https://github.com/nedbat/coveragepy/issues/891
-        if env.PYVERSION < (3, 0):
-            self.skipTest("Python 2 can't seem to compile the file.")
         self.make_file("bug891.py", r"""exec(compile("pass", "\udcff.py", "exec"))""")
         cov = coverage.Coverage()
         self.start_import_stop(cov, "bug891")

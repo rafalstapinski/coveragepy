@@ -14,16 +14,11 @@ LINUX = sys.platform.startswith("linux")
 # Python versions. We amend version_info with one more value, a zero if an
 # official version, or 1 if built from source beyond an official version.
 PYVERSION = sys.version_info + (int(platform.python_version()[-1] == "+"),)
-PY2 = PYVERSION < (3, 0)
-PY3 = PYVERSION >= (3, 0)
 
 # Python implementations.
 PYPY = (platform.python_implementation() == 'PyPy')
 if PYPY:
     PYPYVERSION = sys.pypy_version_info
-
-PYPY2 = PYPY and PY2
-PYPY3 = PYPY and PY3
 
 JYTHON = (platform.python_implementation() == 'Jython')
 IRONPYTHON = (platform.python_implementation() == 'IronPython')
@@ -40,21 +35,6 @@ class PYBEHAVIOR(object):
 
     # Is "if not __debug__" optimized away even better?
     optimize_if_not_debug2 = (not PYPY) and (PYVERSION >= (3, 8, 0, 'beta', 1))
-
-    # Do we have yield-from?
-    yield_from = (PYVERSION >= (3, 3))
-
-    # Do we have PEP 420 namespace packages?
-    namespaces_pep420 = (PYVERSION >= (3, 3))
-
-    # Do .pyc files have the source file size recorded in them?
-    size_in_pyc = (PYVERSION >= (3, 3))
-
-    # Do we have async and await syntax?
-    async_syntax = (PYVERSION >= (3, 5))
-
-    # PEP 448 defined additional unpacking generalizations
-    unpackings_pep448 = (PYVERSION >= (3, 5))
 
     # Can co_lnotab have negative deltas?
     negative_lnotab = (PYVERSION >= (3, 6)) and not (PYPY and PYPYVERSION < (7, 2))

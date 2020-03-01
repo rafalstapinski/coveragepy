@@ -7,6 +7,7 @@ import contextlib
 import datetime
 import functools
 import glob
+import io
 import os
 import os.path
 import random
@@ -14,6 +15,7 @@ import re
 import shlex
 import sys
 import types
+import unittest
 
 import pytest
 from unittest_mixins import (
@@ -23,8 +25,7 @@ from unittest_mixins import (
 
 import coverage
 from coverage import env
-from coverage.backunittest import TestCase, unittest
-from coverage.backward import StringIO, import_local_file, string_class, shlex_quote
+from coverage.backward import import_local_file
 from coverage.cmdline import CoverageScript
 from coverage.misc import StopEverything
 
@@ -69,7 +70,7 @@ class CoverageTest(
     TempDirMixin,
     DelayedAssertionMixin,
     CoverageTestMethodsMixin,
-    TestCase,
+    unittest.TestCase,
 ):
     """A base class for coverage.py test cases."""
 
@@ -209,7 +210,7 @@ class CoverageTest(
                     self.fail("None of the lines choices matched %r" % statements)
 
             missing_formatted = analysis.missing_formatted()
-            if isinstance(missing, string_class):
+            if isinstance(missing, str):
                 self.assertEqual(missing_formatted, missing)
             else:
                 for missing_list in missing:
@@ -236,7 +237,7 @@ class CoverageTest(
                 )
 
         if report:
-            frep = StringIO()
+            frep = io.StringIO()
             cov.report(mod, file=frep, show_missing=True)
             rep = " ".join(frep.getvalue().split("\n")[2].split()[1:])
             self.assertEqual(report, rep)
@@ -418,7 +419,7 @@ class CoverageTest(
         else:
             command_words = [command_name]
 
-        cmd = " ".join([shlex_quote(w) for w in command_words] + command_args)
+        cmd = " ".join([shlex.quote(w) for w in command_words] + command_args)
 
         # Add our test modules directory to PYTHONPATH.  I'm sure there's too
         # much path munging here, but...

@@ -7,7 +7,6 @@ import inspect
 import os.path
 
 import coverage
-from coverage import env
 from coverage.context import qualname_from_frame
 from coverage.data import CoverageData
 
@@ -277,12 +276,6 @@ class QualnameTest(CoverageTest):
         c = Child()
         c.meth = patch_meth
         self.assertEqual(c.meth(c), "tests.test_context.patch_meth")
-
-    def test_oldstyle(self):
-        if not env.PY2:
-            self.skipTest("Old-style classes are only in Python 2")
-        self.assertEqual(OldStyle().meth(), "tests.test_context.OldStyle.meth")
-        self.assertEqual(OldChild().meth(), "tests.test_context.OldStyle.meth")
 
     def test_bug_829(self):
         # A class with a name like a function shouldn't confuse qualname_from_frame.

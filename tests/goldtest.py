@@ -12,18 +12,12 @@ import re
 import sys
 import xml.etree.ElementTree
 
-from coverage import env
-
 from tests.coveragetest import TESTS_DIR
 
 
 def gold_path(path):
     """Get a path to a gold file for comparison."""
     return os.path.join(TESTS_DIR, "gold", path)
-
-
-# "rU" was deprecated in 3.4
-READ_MODE = "rU" if env.PYVERSION < (3, 4) else "r"
 
 
 def versioned_directory(d):
@@ -80,13 +74,13 @@ def compare(
     for f in diff_files:
 
         expected_file = os.path.join(expected_dir, f)
-        with open(expected_file, READ_MODE) as fobj:
+        with open(expected_file) as fobj:
             expected = fobj.read()
         if expected_file.endswith(".xml"):
             expected = canonicalize_xml(expected)
 
         actual_file = os.path.join(actual_dir, f)
-        with open(actual_file, READ_MODE) as fobj:
+        with open(actual_file) as fobj:
             actual = fobj.read()
         if actual_file.endswith(".xml"):
             actual = canonicalize_xml(actual)

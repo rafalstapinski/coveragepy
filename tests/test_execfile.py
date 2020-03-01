@@ -12,7 +12,6 @@ import re
 import sys
 
 from coverage import env
-from coverage.backward import binary_bytes
 from coverage.execfile import run_python_file, run_python_module
 from coverage.files import python_reported_file
 from coverage.misc import NoCode, NoSource
@@ -150,7 +149,7 @@ class RunPycFileTest(CoverageTest):
         # Jam Python 2.1 magic number into the .pyc file.
         with open(pycfile, "r+b") as fpyc:
             fpyc.seek(0)
-            fpyc.write(binary_bytes([0x2a, 0xeb, 0x0d, 0x0a]))
+            fpyc.write(bytes([0x2a, 0xeb, 0x0d, 0x0a]))
 
         with self.assertRaisesRegex(NoCode, "Bad magic number in .pyc file"):
             run_python_file([pycfile])

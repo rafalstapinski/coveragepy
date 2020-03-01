@@ -10,9 +10,7 @@ import sys
 import time
 import xml.dom.minidom
 
-from coverage import env
 from coverage import __url__, __version__, files
-from coverage.backward import iitems
 from coverage.misc import isolate_module
 from coverage.report import get_analysis_to_report
 
@@ -91,13 +89,13 @@ class XmlReporter(object):
         xcoverage.appendChild(xpackages)
 
         # Populate the XML DOM with the package info.
-        for pkg_name, pkg_data in sorted(iitems(self.packages)):
+        for pkg_name, pkg_data in sorted(self.packages.items()):
             class_elts, lhits, lnum, bhits, bnum = pkg_data
             xpackage = self.xml_out.createElement("package")
             xpackages.appendChild(xpackage)
             xclasses = self.xml_out.createElement("classes")
             xpackage.appendChild(xclasses)
-            for _, class_elt in sorted(iitems(class_elts)):
+            for _, class_elt in sorted(class_elts.items()):
                 xclasses.appendChild(class_elt)
             xpackage.setAttribute("name", pkg_name.replace(os.sep, '.'))
             xpackage.setAttribute("line-rate", rate(lhits, lnum))
@@ -127,7 +125,7 @@ class XmlReporter(object):
         xcoverage.setAttribute("complexity", "0")
 
         # Write the output file.
-        outfile.write(serialize_xml(self.xml_out))
+        outfile.write(self.xml_out.toprettyxml())
 
         # Return the total percentage.
         denom = lnum_tot + bnum_tot
@@ -218,11 +216,3 @@ class XmlReporter(object):
         package[2] += class_lines
         package[3] += class_br_hits
         package[4] += class_branches
-
-
-def serialize_xml(dom):
-    """Serialize a minidom node to XML."""
-    out = dom.toprettyxml()
-    if env.PY2:
-        out = out.encode("utf8")
-    return out

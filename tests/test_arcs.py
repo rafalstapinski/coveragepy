@@ -267,10 +267,8 @@ class LoopArcTest(CoverageTest):
         # 3.x thinks it's constant.
         if env.PYBEHAVIOR.nix_while_true:
             arcz = ".1 13 34 45 36 63 57 7."
-        elif env.PY3:
-            arcz = ".1 12 23 34 45 36 63 57 7."
         else:
-            arcz = ".1 12 23 34 45 36 62 57 7."
+            arcz = ".1 12 23 34 45 36 63 57 7."
         self.check_coverage("""\
             a, i = 1, 0
             while True:
@@ -307,10 +305,8 @@ class LoopArcTest(CoverageTest):
         # A continue in a while-true needs to jump to the right place.
         if env.PYBEHAVIOR.nix_while_true:
             arcz = ".1 13 34 45 53 46 67 7."
-        elif env.PY3:
-            arcz = ".1 12 23 34 45 53 46 67 7."
         else:
-            arcz = ".1 12 23 34 45 52 46 67 7."
+            arcz = ".1 12 23 34 45 53 46 67 7."
         self.check_coverage("""\
             up = iter('ta')
             while True:
@@ -382,11 +378,7 @@ class LoopArcTest(CoverageTest):
         )
 
     def test_confusing_for_loop_bug_175(self):
-        if env.PY3:
-            # Py3 counts the list comp as a separate code object.
-            arcz = ".1 -22 2-2 12 23 34 45 53 3."
-        else:
-            arcz = ".1 12 23 34 45 53 3."
+        arcz = ".1 -22 2-2 12 23 34 45 53 3."
         self.check_coverage("""\
             o = [(1,2), (3,4)]
             o = [a for a in o]
@@ -396,10 +388,7 @@ class LoopArcTest(CoverageTest):
             """,
             arcz=arcz,
         )
-        if env.PY3:
-            arcz = ".1 12 -22 2-2 23 34 42 2."
-        else:
-            arcz = ".1 12 23 34 42 2."
+        arcz = ".1 12 -22 2-2 23 34 42 2."
         self.check_coverage("""\
             o = [(1,2), (3,4)]
             for tup in [a for a in o]:
@@ -1048,8 +1037,6 @@ class YieldTest(CoverageTest):
         self.assertEqual(self.stdout(), "20\n12\n")
 
     def test_yield_from(self):
-        if not env.PYBEHAVIOR.yield_from:
-            self.skipTest("Python before 3.3 doesn't have 'yield from'")
         self.check_coverage("""\
             def gen(inp):
                 i = 2
@@ -1224,8 +1211,6 @@ class MiscArcTest(CoverageTest):
         )
 
     def test_unpacked_literals(self):
-        if not env.PYBEHAVIOR.unpackings_pep448:
-            self.skipTest("Don't have unpacked literals until 3.5")
         self.check_coverage("""\
             d = {
                 'a': 2,
@@ -1477,11 +1462,6 @@ class LambdaArcTest(CoverageTest):
 
 class AsyncTest(CoverageTest):
     """Tests of the new async and await keywords in Python 3.5"""
-
-    def setUp(self):
-        if not env.PYBEHAVIOR.async_syntax:
-            self.skipTest("Async features are new in Python 3.5")
-        super(AsyncTest, self).setUp()
 
     def test_async(self):
         self.check_coverage("""\

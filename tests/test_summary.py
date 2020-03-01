@@ -5,6 +5,7 @@
 """Test text-based summary reporting for coverage.py"""
 
 import glob
+import io
 import os
 import os.path
 import py_compile
@@ -12,10 +13,9 @@ import re
 
 import coverage
 from coverage import env
-from coverage.backward import StringIO
 from coverage.control import Coverage
 from coverage.data import CoverageData
-from coverage.misc import CoverageException, output_encoding
+from coverage.misc import CoverageException
 from coverage.summary import SummaryReporter
 
 from tests.coveragetest import CoverageTest, TESTS_DIR, UsingModulesMixin
@@ -567,8 +567,6 @@ class SummaryTest(UsingModulesMixin, CoverageTest):
         # The actual error message varies version to version
         errmsg = re.sub(r": '.*' at", ": 'error' at", errmsg)
         expected = u"Couldn't parse 'accented\xe2.py' as Python source: 'error' at line 1"
-        if env.PY2:
-            expected = expected.encode(output_encoding())
         self.assertEqual(expected, errmsg)
 
     def test_dotpy_not_python_ignored(self):
@@ -639,7 +637,7 @@ class SummaryTest(UsingModulesMixin, CoverageTest):
 
     def get_report(self, cov):
         """Get the report from `cov`, and canonicalize it."""
-        repout = StringIO()
+        repout = io.StringIO()
         cov.report(file=repout, show_missing=False)
         report = repout.getvalue().replace('\\', '/')
         report = re.sub(r" +", " ", report)
@@ -730,10 +728,6 @@ class SummaryTest(UsingModulesMixin, CoverageTest):
         self.assertIn("mod.py 1 0 100%", report)
 
     def test_missing_py_file_during_run(self):
-        # PyPy2 doesn't run bare .pyc files.
-        if env.PYPY2:
-            self.skipTest("PyPy2 doesn't run bare .pyc files")
-
         # Create two Python files.
         self.make_file("mod.py", "a = 1\n")
         self.make_file("main.py", "import mod\n")
@@ -745,7 +739,7 @@ class SummaryTest(UsingModulesMixin, CoverageTest):
         # Python 3 puts the .pyc files in a __pycache__ directory, and will
         # not import from there without source.  It will import a .pyc from
         # the source location though.
-        if env.PY3 and not env.JYTHON:
+        if not env.JYTHON:
             pycs = glob.glob("__pycache__/mod.*.pyc")
             self.assertEqual(len(pycs), 1)
             os.rename(pycs[0], "mod.pyc")
@@ -778,7 +772,7 @@ class SummaryTest2(UsingModulesMixin, CoverageTest):
         import usepkgs  # pragma: nested # pylint: disable=import-error, unused-import
         cov.stop()      # pragma: nested
 
-        repout = StringIO()
+        repout = io.StringIO()
         cov.report(file=repout, show_missing=False)
 
         report = repout.getvalue().replace('\\', '/')
@@ -856,7 +850,7 @@ class TestSummaryReporterConfiguration(CoverageTest):
         for name, value in options:
             cov.set_option(name, value)
         printer = SummaryReporter(cov)
-        destination = StringIO()
+        destination = io.StringIO()
         printer.report([], destination)
         return destination.getvalue()
 

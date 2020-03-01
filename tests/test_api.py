@@ -5,6 +5,7 @@
 
 import fnmatch
 import glob
+import io
 import os
 import os.path
 import re
@@ -16,7 +17,7 @@ from unittest_mixins import change_dir
 
 import coverage
 from coverage import env
-from coverage.backward import code_object, import_local_file, StringIO
+from coverage.backward import import_local_file
 from coverage.data import line_counts
 from coverage.files import abs_file
 from coverage.misc import CoverageException
@@ -269,7 +270,7 @@ class ApiTest(CoverageTest):
         def f1():
             a = 1       # pylint: disable=unused-variable
 
-        one_line_number = code_object(f1).co_firstlineno + 1
+        one_line_number = f1.__code__.co_firstlineno + 1
         lines = []
 
         def run_one_function(f):
@@ -776,11 +777,6 @@ class CurrentInstanceTest(CoverageTest):
 class NamespaceModuleTest(UsingModulesMixin, CoverageTest):
     """Test PEP-420 namespace modules."""
 
-    def setUp(self):
-        if not env.PYBEHAVIOR.namespaces_pep420:
-            self.skipTest("Python before 3.3 doesn't have namespace packages")
-        super(NamespaceModuleTest, self).setUp()
-
     def test_explicit_namespace_module(self):
         self.make_file("main.py", "import namespace_420\n")
 
@@ -936,7 +932,7 @@ class ReportIncludeOmitTest(IncludeOmitTestsMixin, CoverageTest):
         cov.start()
         import usepkgs  # pragma: nested   # pylint: disable=import-error, unused-import
         cov.stop()      # pragma: nested
-        report = StringIO()
+        report = io.StringIO()
         cov.report(file=report, **kwargs)
         return report.getvalue()
 
@@ -1059,7 +1055,7 @@ class TestRunnerPluginTest(CoverageTest):
         self.start_import_stop(cov, "prog")
         cov.combine()
         cov.save()
-        report = StringIO()
+        report = io.StringIO()
         cov.report(show_missing=None, ignore_errors=True, file=report, skip_covered=None,
                    skip_empty=None)
         self.assertEqual(report.getvalue(), textwrap.dedent("""\

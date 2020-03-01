@@ -7,7 +7,6 @@ import os
 import sys
 
 from coverage import env
-from coverage.backward import litems, range     # pylint: disable=redefined-builtin
 from coverage.debug import short_stack
 from coverage.disposition import FileDisposition
 from coverage.misc import CoverageException, isolate_module
@@ -398,7 +397,7 @@ class Collector(object):
         runtime_err = None
         for _ in range(3):
             try:
-                items = litems(d)
+                items = list(d.items())
             except RuntimeError as ex:
                 runtime_err = ex
             else:

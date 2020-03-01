@@ -3,12 +3,12 @@
 
 """Tests of coverage/debug.py"""
 
+import io
 import os
 
 import pytest
 
 import coverage
-from coverage.backward import StringIO
 from coverage.debug import filter_text, info_formatter, info_header, short_id, short_stack
 from coverage.debug import clipped_repr
 from coverage.env import C_TRACER
@@ -105,7 +105,7 @@ class DebugTraceTest(CoverageTest):
                 f1(i)
             """)
 
-        debug_out = StringIO()
+        debug_out = io.StringIO()
         cov = coverage.Coverage(debug=debug)
         cov._debug_file = debug_out
         self.start_import_stop(cov, "f1")

@@ -40,8 +40,8 @@ def set_warnings():
         category=DeprecationWarning,
         message=".* instead of inspect.getfullargspec",
         )
-    if env.PYPY3:
-        # pypy3 warns about unclosed files a lot.
+    if env.PYPY:
+        # pypy warns about unclosed files a lot.
         warnings.filterwarnings("ignore", r".*unclosed file", category=ResourceWarning)
 
 

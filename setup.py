@@ -4,7 +4,7 @@
 """Code coverage measurement for Python"""
 
 # Distutils setup for coverage.py
-# This file is used unchanged under all versions of Python, 2.x and 3.x.
+# This file is used unchanged under all versions of Python.
 
 import os
 import sys
@@ -25,8 +25,6 @@ Intended Audience :: Developers
 License :: OSI Approved :: Apache Software License
 Operating System :: OS Independent
 Programming Language :: Python
-Programming Language :: Python :: 2
-Programming Language :: Python :: 2.7
 Programming Language :: Python :: 3
 Programming Language :: Python :: 3.5
 Programming Language :: Python :: 3.6

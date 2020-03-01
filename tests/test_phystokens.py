@@ -102,10 +102,7 @@ class PhysTokensTest(CoverageTest):
 
 
 # The default encoding is different in Python 2 and Python 3.
-if env.PY3:
-    DEF_ENCODING = "utf-8"
-else:
-    DEF_ENCODING = "ascii"
+DEF_ENCODING = "utf-8"
 
 
 ENCODING_DECLARATION_SOURCES = [
@@ -135,7 +132,7 @@ class SourceEncodingTest(CoverageTest):
             )
 
     def test_detect_source_encoding_not_in_comment(self):
-        if env.PYPY3:           # pragma: no metacov
+        if env.PYPY:           # pragma: no metacov
             # PyPy3 gets this case wrong. Not sure what I can do about it,
             # so skip the test.
             self.skipTest("PyPy3 is wrong about non-comment encoding. Skip it.")

@@ -16,7 +16,6 @@ import mock
 from unittest_mixins import change_dir
 
 import coverage
-from coverage.backward import unicode_class
 from coverage import env
 from coverage.files import flat_rootname
 import coverage.html
@@ -625,10 +624,10 @@ def compare_html(expected, actual):
         (r'<span class="(nam|key)">(print|True|False)</span>', r'<span class="nam">\2</span>'),
         # Occasionally an absolute path is in the HTML report.
         (filepath_to_regex(TESTS_DIR), 'TESTS_DIR'),
-        (filepath_to_regex(flat_rootname(unicode_class(TESTS_DIR))), '_TESTS_DIR'),
+        (filepath_to_regex(flat_rootname(str(TESTS_DIR))), '_TESTS_DIR'),
         # The temp dir the tests make.
         (filepath_to_regex(os.getcwd()), 'TEST_TMPDIR'),
-        (filepath_to_regex(flat_rootname(unicode_class(os.getcwd()))), '_TEST_TMPDIR'),
+        (filepath_to_regex(flat_rootname(str(os.getcwd()))), '_TEST_TMPDIR'),
         (r'/private/var/folders/[\w/]{35}/coverage_test/tests_test_html_\w+_\d{8}', 'TEST_TMPDIR'),
         (r'_private_var_folders_\w{35}_coverage_test_tests_test_html_\w+_\d{8}', '_TEST_TMPDIR'),
     ]
@@ -742,12 +741,8 @@ math = "3\xc3\x974 = 12, \xc3\xb72 = 6\xc2\xb10"
 
 import sys
 
-if sys.version_info >= (3, 0):
-    assert len(math) == 18
-    assert len(math.encode('utf-8')) == 21
-else:
-    assert len(math) == 21
-    assert len(math.decode('utf-8')) == 18
+assert len(math) == 18
+assert len(math.encode('utf-8')) == 21
 """.replace(b"\n", b"\r\n"))
 
         # It's important that the source file really have a BOM, which can
@@ -756,7 +751,7 @@ else:
         with open("bom.py", "rb") as f:
             data = f.read()
             assert data[:3] == b"\xef\xbb\xbf"
-            assert data.count(b"\r\n") == 11
+            assert data.count(b"\r\n") == 7
 
         cov = coverage.Coverage()
         bom = self.start_import_stop(cov, "bom")
@@ -1017,9 +1012,6 @@ assert len(math) == 18
 
     def test_unicode(self):
         surrogate = u"\U000e0100"
-        if env.PY2:
-            surrogate = surrogate.encode('utf-8')
-
         self.make_file("unicode.py", """\
             # -*- coding: utf-8 -*-
             # A Python source file with exotic characters.

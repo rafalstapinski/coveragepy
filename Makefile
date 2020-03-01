@@ -57,15 +57,15 @@ pep8:
 	pycodestyle --filename=*.py --repeat $(LINTABLE)
 
 test:
-	tox -e py27,py35 $(ARGS)
+	tox -e py35 $(ARGS)
 
 PYTEST_SMOKE_ARGS = -n 6 -m "not expensive" --maxfail=3 $(ARGS)
 
 smoke: 					## Run tests quickly with the C tracer in the lowest supported Python versions.
-	COVERAGE_NO_PYTRACER=1 tox -q -e py27,py35 -- $(PYTEST_SMOKE_ARGS)
+	COVERAGE_NO_PYTRACER=1 tox -q -e py35 -- $(PYTEST_SMOKE_ARGS)
 
 pysmoke: 				## Run tests quickly with the Python tracer in the lowest supported Python versions.
-	COVERAGE_NO_CTRACER=1 tox -q -e py27,py35 -- $(PYTEST_SMOKE_ARGS)
+	COVERAGE_NO_CTRACER=1 tox -q -e py35 -- $(PYTEST_SMOKE_ARGS)
 
 DOCKER_RUN = docker run -it --init --rm -v `pwd`:/io
 RUN_MANYLINUX_X86 = $(DOCKER_RUN) quay.io/pypa/manylinux1_x86_64 /io/ci/manylinux.sh

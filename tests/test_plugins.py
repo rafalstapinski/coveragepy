@@ -4,12 +4,13 @@
 """Tests for plugins."""
 
 import inspect
+import io
 import os.path
 from xml.etree import ElementTree
 
 import coverage
 from coverage import env
-from coverage.backward import StringIO, import_local_file
+from coverage.backward import import_local_file
 from coverage.data import line_counts
 from coverage.control import Plugins
 from coverage.misc import CoverageException
@@ -186,7 +187,7 @@ class PluginTest(CoverageTest):
             def coverage_init(reg, options):
                 reg.add_file_tracer(Plugin())
             """)
-        debug_out = StringIO()
+        debug_out = io.StringIO()
         cov = coverage.Coverage(debug=["sys"])
         cov._debug_file = debug_out
         cov.set_option("run:plugins", ["plugin_sys_info"])
@@ -216,7 +217,7 @@ class PluginTest(CoverageTest):
             def coverage_init(reg, options):
                 reg.add_configurer(Plugin())
             """)
-        debug_out = StringIO()
+        debug_out = io.StringIO()
         cov = coverage.Coverage(debug=["sys"])
         cov._debug_file = debug_out
         cov.set_option("run:plugins", ["plugin_no_sys_info"])
@@ -415,7 +416,7 @@ class GoodFileTracerTest(FileTracerTest):
 
         self.start_import_stop(cov, "caller")
 
-        repout = StringIO()
+        repout = io.StringIO()
         total = cov.report(file=repout, include=["*.html"], omit=["uni*.html"], show_missing=True)
         report = repout.getvalue().splitlines()
         expected = [
@@ -515,7 +516,7 @@ class GoodFileTracerTest(FileTracerTest):
         cov.set_option("run:plugins", ["fairly_odd_plugin"])
         self.start_import_stop(cov, "unsuspecting")
 
-        repout = StringIO()
+        repout = io.StringIO()
         total = cov.report(file=repout, show_missing=True)
         report = repout.getvalue().splitlines()
         expected = [

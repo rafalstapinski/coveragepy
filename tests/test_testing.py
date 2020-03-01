@@ -8,11 +8,11 @@ import datetime
 import os
 import re
 import sys
+import unittest
 
 import pytest
 
 import coverage
-from coverage.backunittest import TestCase, unittest
 from coverage.files import actual_path
 from coverage.misc import StopEverything
 import coverage.optional
@@ -26,18 +26,6 @@ def test_xdist_sys_path_nuttiness_is_fixed():
     # See conftest.py:fix_xdist_sys_path
     assert sys.path[1] != ''
     assert os.environ.get('PYTHONPATH') is None
-
-
-class TestingTest(TestCase):
-    """Tests of helper methods on `backunittest.TestCase`."""
-
-    def test_assert_count_equal(self):
-        self.assertCountEqual(set(), set())
-        self.assertCountEqual(set([1,2,3]), set([3,1,2]))
-        with self.assertRaises(AssertionError):
-            self.assertCountEqual(set([1,2,3]), set())
-        with self.assertRaises(AssertionError):
-            self.assertCountEqual(set([1,2,3]), set([4,5,6]))
 
 
 class CoverageTestTest(CoverageTest):

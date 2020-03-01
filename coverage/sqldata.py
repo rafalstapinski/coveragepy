@@ -15,9 +15,8 @@ import re
 import sqlite3
 import sys
 import zlib
+from threading import get_ident as get_thread_id
 
-from coverage import env
-from coverage.backward import get_thread_id, iitems, to_bytes, to_string
 from coverage.debug import NoDebugging, SimpleReprMixin, clipped_repr
 from coverage.files import PathAliases
 from coverage.misc import CoverageException, contract, file_be_gone, filename_suffix, isolate_module
@@ -328,7 +327,7 @@ class CoverageData(SimpleReprMixin):
         if self._debug.should('dataio'):
             self._debug.write("Dumping data from data file {!r}".format(self._filename))
         with self._connect() as con:
-            return b'z' + zlib.compress(to_bytes(con.dump()))
+            return b'z' + zlib.compress(con.dump().encode("utf-8"))
 
     @contract(data='bytes')
     def loads(self, data):
@@ -349,7 +348,7 @@ class CoverageData(SimpleReprMixin):
             raise CoverageException(
                 "Unrecognized serialization: {!r} (head of {} bytes)".format(data[:40], len(data))
                 )
-        script = to_string(zlib.decompress(data[1:]))
+        script = zlib.decompress(data[1:]).decode('utf-8')
         self._dbs[get_thread_id()] = db = SqliteDb(self._filename, self._debug)
         with db:
             db.executescript(script)
@@ -439,7 +438,7 @@ class CoverageData(SimpleReprMixin):
             return
         with self._connect() as con:
             self._set_context_id()
-            for filename, linenos in iitems(line_data):
+            for filename, linenos in line_data.items():
                 linemap = nums_to_numbits(linenos)
                 file_id = self._file_id(filename, add=True)
                 query = "select numbits from line_bits where file_id = ? and context_id = ?"
@@ -471,7 +470,7 @@ class CoverageData(SimpleReprMixin):
             return
         with self._connect() as con:
             self._set_context_id()
-            for filename, arcs in iitems(arc_data):
+            for filename, arcs in arc_data.items():
                 file_id = self._file_id(filename, add=True)
                 data = [(file_id, self._current_context_id, fromno, tono) for fromno, tono in arcs]
                 con.executemany(
@@ -509,7 +508,7 @@ class CoverageData(SimpleReprMixin):
             return
         self._start_using()
         with self._connect() as con:
-            for filename, plugin_name in iitems(file_tracers):
+            for filename, plugin_name in file_tracers.items():
                 file_id = self._file_id(filename)
                 if file_id is None:
                     raise CoverageException(
@@ -984,20 +983,6 @@ class SqliteDb(SimpleReprMixin):
         if self.con is not None:
             return
 
-        # SQLite on Windows on py2 won't open a file if the filename argument
-        # has non-ascii characters in it.  Opening a relative file name avoids
-        # a problem if the current directory has non-ascii.
-        filename = self.filename
-        if env.WINDOWS and env.PY2:
-            try:
-                filename = os.path.relpath(self.filename)
-            except ValueError:
-                # ValueError can be raised under Windows when os.getcwd() returns a
-                # folder from a different drive than the drive of self.filename in
-                # which case we keep the original value of self.filename unchanged,
-                # hoping that we won't face the non-ascii directory problem.
-                pass
-
         # It can happen that Python switches threads while the tracer writes
         # data. The second thread will also try to write to the data,
         # effectively causing a nested context. However, given the idempotent
@@ -1005,7 +990,7 @@ class SqliteDb(SimpleReprMixin):
         # is not a problem.
         if self.debug:
             self.debug.write("Connecting to {!r}".format(self.filename))
-        self.con = sqlite3.connect(filename, check_same_thread=False)
+        self.con = sqlite3.connect(self.filename, check_same_thread=False)
         self.con.create_function('REGEXP', 2, _regexp)
 
         # This pragma makes writing faster. It disables rollbacks, but we never need them.

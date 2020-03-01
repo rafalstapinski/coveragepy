@@ -9,164 +9,14 @@
 import os
 import sys
 
-from coverage import env
-
-
-# Pythons 2 and 3 differ on where to get StringIO.
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
-
-# In py3, ConfigParser was renamed to the more-standard configparser.
-# But there's a py3 backport that installs "configparser" in py2, and I don't
-# want it because it has annoying deprecation warnings. So try the real py2
-# import first.
-try:
-    import ConfigParser as configparser
-except ImportError:
-    import configparser
-
-# What's a string called?
-try:
-    string_class = basestring
-except NameError:
-    string_class = str
-
-# What's a Unicode string called?
-try:
-    unicode_class = unicode
-except NameError:
-    unicode_class = str
-
-# range or xrange?
-try:
-    range = xrange      # pylint: disable=redefined-builtin
-except NameError:
-    range = range
-
-try:
-    from itertools import zip_longest
-except ImportError:
-    from itertools import izip_longest as zip_longest
-
-# Where do we get the thread id from?
-try:
-    from thread import get_ident as get_thread_id
-except ImportError:
-    from threading import get_ident as get_thread_id
-
 try:
     os.PathLike
 except AttributeError:
     # This is Python 2 and 3
-    path_types = (bytes, string_class, unicode_class)
+    path_types = (bytes, str)
 else:
     # 3.6+
     path_types = (bytes, str, os.PathLike)
-
-# shlex.quote is new, but there's an undocumented implementation in "pipes",
-# who knew!?
-try:
-    from shlex import quote as shlex_quote
-except ImportError:
-    # Useful function, available under a different (undocumented) name
-    # in Python versions earlier than 3.3.
-    from pipes import quote as shlex_quote
-
-try:
-    import reprlib
-except ImportError:
-    import repr as reprlib
-
-# A function to iterate listlessly over a dict's items, and one to get the
-# items as a list.
-try:
-    {}.iteritems
-except AttributeError:
-    # Python 3
-    def iitems(d):
-        """Produce the items from dict `d`."""
-        return d.items()
-
-    def litems(d):
-        """Return a list of items from dict `d`."""
-        return list(d.items())
-else:
-    # Python 2
-    def iitems(d):
-        """Produce the items from dict `d`."""
-        return d.iteritems()
-
-    def litems(d):
-        """Return a list of items from dict `d`."""
-        return d.items()
-
-# Getting the `next` function from an iterator is different in 2 and 3.
-try:
-    iter([]).next
-except AttributeError:
-    def iternext(seq):
-        """Get the `next` function for iterating over `seq`."""
-        return iter(seq).__next__
-else:
-    def iternext(seq):
-        """Get the `next` function for iterating over `seq`."""
-        return iter(seq).next
-
-# Python 3.x is picky about bytes and strings, so provide methods to
-# get them right, and make them no-ops in 2.x
-if env.PY3:
-    def to_bytes(s):
-        """Convert string `s` to bytes."""
-        return s.encode('utf8')
-
-    def to_string(b):
-        """Convert bytes `b` to string."""
-        return b.decode('utf8')
-
-    def binary_bytes(byte_values):
-        """Produce a byte string with the ints from `byte_values`."""
-        return bytes(byte_values)
-
-    def byte_to_int(byte):
-        """Turn a byte indexed from a bytes object into an int."""
-        return byte
-
-    def bytes_to_ints(bytes_value):
-        """Turn a bytes object into a sequence of ints."""
-        # In Python 3, iterating bytes gives ints.
-        return bytes_value
-
-else:
-    def to_bytes(s):
-        """Convert string `s` to bytes (no-op in 2.x)."""
-        return s
-
-    def to_string(b):
-        """Convert bytes `b` to string."""
-        return b
-
-    def binary_bytes(byte_values):
-        """Produce a byte string with the ints from `byte_values`."""
-        return "".join(chr(b) for b in byte_values)
-
-    def byte_to_int(byte):
-        """Turn a byte indexed from a bytes object into an int."""
-        return ord(byte)
-
-    def bytes_to_ints(bytes_value):
-        """Turn a bytes object into a sequence of ints."""
-        for byte in bytes_value:
-            yield ord(byte)
-
-
-try:
-    # In Python 2.x, the builtins were in __builtin__
-    BUILTINS = sys.modules['__builtin__']
-except KeyError:
-    # In Python 3.x, they're in builtins
-    BUILTINS = sys.modules['builtins']
 
 
 # imp was deprecated in Python 3.3
@@ -189,32 +39,6 @@ try:
     PYC_MAGIC_NUMBER = importlib.util.MAGIC_NUMBER
 except AttributeError:
     PYC_MAGIC_NUMBER = imp.get_magic()
-
-
-def code_object(fn):
-    """Get the code object from a function."""
-    try:
-        return fn.func_code
-    except AttributeError:
-        return fn.__code__
-
-
-try:
-    from types import SimpleNamespace
-except ImportError:
-    # The code from https://docs.python.org/3/library/types.html#types.SimpleNamespace
-    class SimpleNamespace:
-        """Python implementation of SimpleNamespace, for Python 2."""
-        def __init__(self, **kwargs):
-            self.__dict__.update(kwargs)
-
-        def __repr__(self):
-            keys = sorted(self.__dict__)
-            items = ("{}={!r}".format(k, self.__dict__[k]) for k in keys)
-            return "{}({})".format(type(self).__name__, ", ".join(items))
-
-        def __eq__(self, other):
-            return self.__dict__ == other.__dict__
 
 
 def invalidate_import_caches():

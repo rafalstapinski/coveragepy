@@ -13,7 +13,6 @@ import time
 
 from coverage import env
 from coverage.annotate import AnnotateReporter
-from coverage.backward import string_class, iitems
 from coverage.collector import Collector, CTracer
 from coverage.config import read_coverage_config
 from coverage.context import should_start_context_test_function, combine_context_switchers
@@ -451,7 +450,7 @@ class Coverage(object):
 
         suffix = self._data_suffix_specified
         if suffix or self.config.parallel:
-            if not isinstance(suffix, string_class):
+            if not isinstance(suffix, str):
                 # if data_suffix=True, use .machinename.pid.random
                 suffix = True
         else:
@@ -778,7 +777,7 @@ class Coverage(object):
         plugin = None
         file_reporter = "python"
 
-        if isinstance(morf, string_class):
+        if isinstance(morf, str):
             mapped_morf = self._file_mapper(morf)
             plugin_name = self._data.file_tracer(mapped_morf)
             if plugin_name:
@@ -1020,7 +1019,7 @@ class Coverage(object):
             ('path', sys.path),
             ('environment', sorted(
                 ("%s = %s" % (k, v))
-                for k, v in iitems(os.environ)
+                for k, v in os.environ.items()
                 if any(slug in k for slug in ("COV", "PY"))
             )),
             ('command_line', " ".join(getattr(sys, 'argv', ['-none-']))),

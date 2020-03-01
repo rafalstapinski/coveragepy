@@ -16,7 +16,6 @@ import sys
 import types
 
 from coverage import env
-from coverage.backward import to_bytes, unicode_class
 
 ISOLATED_MODULES = {}
 
@@ -71,8 +70,7 @@ if USE_CONTRACTS:
 
     # Define contract words that PyContract doesn't have.
     new_contract('bytes', lambda v: isinstance(v, bytes))
-    if env.PY3:
-        new_contract('unicode', lambda v: isinstance(v, unicode_class))
+    new_contract('unicode', lambda v: isinstance(v, str))
 
     def one_of(argnames):
         """Ensure that only one of the argnames is non-None."""
@@ -204,15 +202,15 @@ class Hasher(object):
 
     def update(self, v):
         """Add `v` to the hash, recursively if needed."""
-        self.md5.update(to_bytes(str(type(v))))
-        if isinstance(v, unicode_class):
+        self.md5.update(str(type(v)).encode("utf-8"))
+        if isinstance(v, str):
             self.md5.update(v.encode('utf8'))
         elif isinstance(v, bytes):
             self.md5.update(v)
         elif v is None:
             pass
         elif isinstance(v, (int, float)):
-            self.md5.update(to_bytes(str(v)))
+            self.md5.update(str(v).encode("utf-8"))
         elif isinstance(v, (tuple, list)):
             for e in v:
                 self.update(e)

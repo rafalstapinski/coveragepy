@@ -3,12 +3,13 @@
 
 """TOML configuration support for coverage.py"""
 
+import configparser
 import io
 import os
 import re
 
 from coverage import env
-from coverage.backward import configparser, path_types
+from coverage.backward import path_types
 from coverage.misc import CoverageException, substitute_variables
 
 

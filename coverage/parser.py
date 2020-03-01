@@ -11,8 +11,6 @@ import token
 import tokenize
 
 from coverage import env
-from coverage.backward import range    # pylint: disable=redefined-builtin
-from coverage.backward import bytes_to_ints, string_class
 from coverage.bytecode import code_objects
 from coverage.debug import short_stack
 from coverage.misc import contract, join_regex, new_contract, nice_pair, one_of
@@ -105,8 +103,6 @@ class PythonParser(object):
 
         """
         combined = join_regex(regexes)
-        if env.PY2:
-            combined = combined.decode("utf8")
         regex_c = re.compile(combined)
         matches = set()
         for i, ltext in enumerate(self.lines, start=1):
@@ -400,8 +396,8 @@ class ByteParser(object):
 
         """
         # Adapted from dis.py in the standard library.
-        byte_increments = bytes_to_ints(self.code.co_lnotab[0::2])
-        line_increments = bytes_to_ints(self.code.co_lnotab[1::2])
+        byte_increments = self.code.co_lnotab[0::2]
+        line_increments = self.code.co_lnotab[1::2]
 
         last_line_num = None
         line_num = self.code.co_firstlineno
@@ -599,7 +595,7 @@ class AstArcAnalyzer(object):
 
     def _line__Dict(self, node):
         # Python 3.5 changed how dict literals are made.
-        if env.PYVERSION >= (3, 5) and node.keys:
+        if node.keys:
             if node.keys[0] is not None:
                 return node.keys[0].lineno
             else:
@@ -1110,7 +1106,7 @@ class AstArcAnalyzer(object):
     def _handle__While(self, node):
         constant_test = self.is_constant_expr(node.test)
         start = to_top = self.line_for_node(node.test)
-        if constant_test and (env.PY3 or constant_test == "Num"):
+        if constant_test:
             to_top = self.line_for_node(node.body[0])
         self.block_stack.append(LoopBlock(start=to_top))
         from_start = ArcStart(start, cause="the condition on line {lineno} was never true")
@@ -1183,8 +1179,7 @@ class AstArcAnalyzer(object):
     _code_object__GeneratorExp = _make_oneline_code_method("generator expression")
     _code_object__DictComp = _make_oneline_code_method("dictionary comprehension")
     _code_object__SetComp = _make_oneline_code_method("set comprehension")
-    if env.PY3:
-        _code_object__ListComp = _make_oneline_code_method("list comprehension")
+    _code_object__ListComp = _make_oneline_code_method("list comprehension")
 
 
 if AST_DUMP:            # pragma: debugging
@@ -1196,7 +1191,7 @@ if AST_DUMP:            # pragma: debugging
         """Is `value` simple enough to be displayed on a single line?"""
         return (
             value in [None, [], (), {}, set()] or
-            isinstance(value, (string_class, int, float))
+            isinstance(value, (str, int, float))
         )
 
     def ast_dump(node, depth=0):

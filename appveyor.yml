@@ -20,12 +20,6 @@ environment:
   # version pre-installed on AppVeyor.
   #
   matrix:
-    - JOB: "2.7 64-bit"
-      TOXENV: "py27"
-      PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.17"
-      PYTHON_ARCH: "64"
-
     - JOB: "3.5 64-bit"
       TOXENV: "py35"
       PYTHON: "C:\\Python35-x64"
@@ -58,13 +52,6 @@ environment:
 
     # 32-bit jobs don't run the tests under the Python tracer, since that should
     # be exactly the same as 64-bit.
-    - JOB: "2.7 32-bit"
-      TOXENV: "py27"
-      PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7.17"
-      PYTHON_ARCH: "32"
-      COVERAGE_NO_PYTRACER: "1"
-
     - JOB: "3.5 32-bit"
       TOXENV: "py35"
       PYTHON: "C:\\Python35"
@@ -101,13 +88,6 @@ environment:
       COVERAGE_NO_PYTRACER: "1"
 
     # Meta coverage
-    - JOB: "Meta 2.7"
-      TOXENV: "py27"
-      PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7.17"
-      PYTHON_ARCH: "32"
-      COVERAGE_COVERAGE: "yes"
-
     - JOB: "Meta 3.6"
       TOXENV: "py36"
       PYTHON: "C:\\Python36"

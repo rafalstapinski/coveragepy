@@ -8,12 +8,10 @@ import os
 import re
 import shutil
 import subprocess
-import sys
 
 from unittest_mixins import ModuleCleaner
 
-from coverage import env
-from coverage.backward import invalidate_import_caches, unicode_class
+from coverage.backward import invalidate_import_caches
 from coverage.misc import output_encoding
 
 
@@ -23,9 +21,6 @@ def run_command(cmd):
     Returns the exit status code and the combined stdout and stderr.
 
     """
-    if env.PY2 and isinstance(cmd, unicode_class):
-        cmd = cmd.encode(sys.getfilesystemencoding())
-
     # In some strange cases (PyPy3 in a virtualenv!?) the stdout encoding of
     # the subprocess is set incorrectly to ascii.  Use an environment variable
     # to force the encoding to be the same as ours.

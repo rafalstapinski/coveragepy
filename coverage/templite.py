@@ -12,8 +12,6 @@ http://aosabook.org/en/500L/a-template-engine.html
 
 import re
 
-from coverage import env
-
 
 class TempliteSyntaxError(ValueError):
     """Raised when a template has a syntax error."""
@@ -137,10 +135,6 @@ class Templite(object):
         code.add_line("result = []")
         code.add_line("append_result = result.append")
         code.add_line("extend_result = result.extend")
-        if env.PY2:
-            code.add_line("to_str = unicode")
-        else:
-            code.add_line("to_str = str")
 
         buffered = []
 
@@ -172,7 +166,7 @@ class Templite(object):
                 elif token.startswith('{{'):
                     # An expression to evaluate.
                     expr = self._expr_code(token[start:end].strip())
-                    buffered.append("to_str(%s)" % expr)
+                    buffered.append("str(%s)" % expr)
                 else:
                     # token.startswith('{%')
                     # Action tag: split into words and parse further.

@@ -11,7 +11,6 @@ import sys
 import types
 
 from coverage import env
-from coverage.backward import BUILTINS
 from coverage.backward import PYC_MAGIC_NUMBER, imp, importlib_util_find_spec
 from coverage.files import canonical_filename, python_reported_file
 from coverage.misc import CoverageException, ExceptionDuringRun, NoCode, NoSource, isolate_module
@@ -182,9 +181,6 @@ class PyRunner(object):
             else:
                 raise NoSource("Can't find '__main__' module in '%s'" % self.arg0)
 
-            if env.PY2:
-                self.arg0 = os.path.abspath(self.arg0)
-
             # Make a spec. I don't know if this is the right way to do it.
             try:
                 import importlib.machinery
@@ -197,8 +193,7 @@ class PyRunner(object):
             self.package = ""
             self.loader = DummyLoader("__main__")
         else:
-            if env.PY3:
-                self.loader = DummyLoader("__main__")
+            self.loader = DummyLoader("__main__")
 
         self.arg0 = python_reported_file(self.arg0)
 
@@ -220,7 +215,7 @@ class PyRunner(object):
         if self.spec is not None:
             main_mod.__spec__ = self.spec
 
-        main_mod.__builtins__ = BUILTINS
+        main_mod.__builtins__ = sys.modules['builtins']
 
         sys.modules['__main__'] = main_mod
 
@@ -352,9 +347,8 @@ def make_code_from_pyc(filename):
         if date_based:
             # Skip the junk in the header that we don't need.
             fpyc.read(4)            # Skip the moddate.
-            if env.PYBEHAVIOR.size_in_pyc:
-                # 3.3 added another long to the header (size), skip it.
-                fpyc.read(4)
+            # 3.3 added another long to the header (size), skip it.
+            fpyc.read(4)
 
         # The rest of the file is the code object we want.
         code = marshal.load(fpyc)

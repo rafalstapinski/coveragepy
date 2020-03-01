@@ -4,13 +4,12 @@
 """Config file for coverage.py"""
 
 import collections
+import configparser
 import copy
 import os
 import os.path
 import re
 
-from coverage import env
-from coverage.backward import configparser, iitems, string_class
 from coverage.misc import contract, CoverageException, isolate_module
 from coverage.misc import substitute_variables
 
@@ -37,10 +36,7 @@ class HandyConfigParser(configparser.RawConfigParser):
 
     def read(self, filenames, encoding=None):
         """Read a file name as UTF-8 configuration data."""
-        kwargs = {}
-        if env.PYVERSION >= (3, 2):
-            kwargs['encoding'] = encoding or "utf-8"
-        return configparser.RawConfigParser.read(self, filenames, **kwargs)
+        return configparser.RawConfigParser.read(self, filenames, encoding=encoding or "utf-8")
 
     def has_option(self, section, option):
         for section_prefix in self.section_prefixes:
@@ -241,9 +237,9 @@ class CoverageConfig(object):
 
     def from_args(self, **kwargs):
         """Read config values from `kwargs`."""
-        for k, v in iitems(kwargs):
+        for k, v in kwargs.items():
             if v is not None:
-                if k in self.MUST_BE_LIST and isinstance(v, string_class):
+                if k in self.MUST_BE_LIST and isinstance(v, str):
                     v = [v]
                 setattr(self, k, v)
 
@@ -293,7 +289,7 @@ class CoverageConfig(object):
             section, option = option_spec[1].split(":")
             all_options[section].add(option)
 
-        for section, options in iitems(all_options):
+        for section, options in all_options.items():
             real_section = cp.has_section(section)
             if real_section:
                 for unknown in set(cp.options(section)) - options:

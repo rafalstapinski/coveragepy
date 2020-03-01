@@ -21,7 +21,6 @@ import coverage
 from coverage import env
 from coverage.data import line_counts
 from coverage.files import python_reported_file
-from coverage.misc import output_encoding
 
 from tests.coveragetest import CoverageTest, TESTS_DIR, xfail
 from tests.helpers import re_lines
@@ -714,8 +713,6 @@ class ProcessTest(CoverageTest):
 
     @pytest.mark.expensive
     def test_fullcoverage(self):                        # pragma: no metacov
-        if env.PY2:             # This doesn't work on Python 2.
-            self.skipTest("fullcoverage doesn't work on Python 2.")
         # It only works with the C tracer, and if we aren't measuring ourselves.
         if not env.C_TRACER or env.METACOV:
             self.skipTest("fullcoverage only works with the C tracer.")
@@ -743,7 +740,7 @@ class ProcessTest(CoverageTest):
         self.assertGreater(line_counts(data)['os.py'], 50)
 
     @xfail(
-        env.PYPY3 and env.PYPYVERSION >= (7, 1, 1),
+        env.PYPY and env.PYPYVERSION >= (7, 1, 1),
         "https://bitbucket.org/pypy/pypy/issues/3074"
     )
     def test_lang_c(self):
@@ -883,15 +880,9 @@ class EnvironmentTest(CoverageTest):
 
         expected = self.run_command("python -m with_main")
         actual = self.run_command("coverage run -m with_main")
-        if env.PY2:
-            assert expected.endswith("No module named with_main\n")
-            assert actual.endswith("No module named with_main\n")
-        else:
-            self.assert_tryexecfile_output(expected, actual)
+        self.assert_tryexecfile_output(expected, actual)
 
     def test_coverage_run_dashm_dir_with_init_is_like_python(self):
-        if env.PY2:
-            self.skipTest("Python 2 runs __main__ twice, I can't be bothered to make it work.")
         with open(TRY_EXECFILE) as f:
             self.make_file("with_main/__main__.py", f.read())
         self.make_file("with_main/__init__.py", "")
@@ -1301,9 +1292,6 @@ class UnicodeFilePathsTest(CoverageTest):
             u"h\xe2t.py       1      0   100%\n"
         )
 
-        if env.PY2:
-            report_expected = report_expected.encode(output_encoding())
-
         out = self.run_command("coverage report")
         self.assertEqual(out, report_expected)
 
@@ -1344,9 +1332,6 @@ class UnicodeFilePathsTest(CoverageTest):
             u"-----------------------------------\n"
             u"\xe2%saccented.py       1      0   100%%\n" % os.sep
         )
-
-        if env.PY2:
-            report_expected = report_expected.encode(output_encoding())
 
         out = self.run_command("coverage report")
         self.assertEqual(out, report_expected)
