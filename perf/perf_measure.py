@@ -14,9 +14,8 @@ import time
 from unittest_mixins.mixins import make_file
 
 import coverage
-from coverage.backward import import_local_file
 
-from tests.helpers import SuperModuleCleaner
+from tests.helpers import import_local_file, SuperModuleCleaner
 
 
 class StressResult(namedtuple('StressResult', ['files', 'calls', 'lines', 'baseline', 'covered'])):

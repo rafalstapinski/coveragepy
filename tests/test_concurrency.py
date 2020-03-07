@@ -14,12 +14,11 @@ from flaky import flaky
 
 import coverage
 from coverage import env
-from coverage.backward import import_local_file
 from coverage.data import line_counts
 from coverage.files import abs_file
 
 from tests.coveragetest import CoverageTest
-from tests.helpers import remove_files
+from tests.helpers import import_local_file, remove_files
 
 
 # These libraries aren't always available, we'll skip tests if they aren't.

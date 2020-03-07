@@ -11,10 +11,10 @@ import pytest
 
 import coverage
 from coverage import env
-from coverage.backward import import_local_file
 from coverage.files import abs_file
 
 from tests.coveragetest import CoverageTest
+from tests.helpers import import_local_file
 from tests import osinfo
 
 

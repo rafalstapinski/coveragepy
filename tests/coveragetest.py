@@ -25,12 +25,12 @@ from unittest_mixins import (
 
 import coverage
 from coverage import env
-from coverage.backward import import_local_file
 from coverage.cmdline import CoverageScript
 from coverage.misc import StopEverything
 
 from tests.helpers import arcs_to_arcz_repr, arcz_to_arcs
 from tests.helpers import run_command, SuperModuleCleaner
+from tests.helpers import import_local_file
 
 
 # Status returns for the command line.

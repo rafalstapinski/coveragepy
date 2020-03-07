@@ -10,7 +10,6 @@ from xml.etree import ElementTree
 
 import coverage
 from coverage import env
-from coverage.backward import import_local_file
 from coverage.data import line_counts
 from coverage.control import Plugins
 from coverage.misc import CoverageException
@@ -18,7 +17,7 @@ from coverage.misc import CoverageException
 import coverage.plugin
 
 from tests.coveragetest import CoverageTest
-from tests.helpers import CheckUniqueFilenames
+from tests.helpers import CheckUniqueFilenames, import_local_file
 
 
 class FakeConfig(object):

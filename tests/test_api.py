@@ -17,12 +17,12 @@ from unittest_mixins import change_dir
 
 import coverage
 from coverage import env
-from coverage.backward import import_local_file
 from coverage.data import line_counts
 from coverage.files import abs_file
 from coverage.misc import CoverageException
 
 from tests.coveragetest import CoverageTest, CoverageTestMethodsMixin, TESTS_DIR, UsingModulesMixin
+from tests.helpers import import_local_file
 
 
 class ApiTest(CoverageTest):
