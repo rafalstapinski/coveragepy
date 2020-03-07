@@ -19,34 +19,6 @@ else:
     path_types = (bytes, str, os.PathLike)
 
 
-# imp was deprecated in Python 3.3
-try:
-    import importlib
-    import importlib.util
-    imp = None
-except ImportError:
-    importlib = None
-
-# We only want to use importlib if it has everything we need.
-try:
-    importlib_util_find_spec = importlib.util.find_spec
-except Exception:
-    import imp
-    importlib_util_find_spec = None
-
-# What is the .pyc magic number for this version of Python?
-try:
-    PYC_MAGIC_NUMBER = importlib.util.MAGIC_NUMBER
-except AttributeError:
-    PYC_MAGIC_NUMBER = imp.get_magic()
-
-
-def invalidate_import_caches():
-    """Invalidate any import caches that may or may not exist."""
-    if importlib and hasattr(importlib, "invalidate_caches"):
-        importlib.invalidate_caches()
-
-
 def import_local_file(modname, modfile=None):
     """Import a local file as a module.
 
@@ -55,23 +27,11 @@ def import_local_file(modname, modfile=None):
     import if it isn't in the current directory.
 
     """
-    try:
-        from importlib.machinery import SourceFileLoader
-    except ImportError:
-        SourceFileLoader = None
+    from importlib.machinery import SourceFileLoader
 
     if modfile is None:
         modfile = modname + '.py'
-    if SourceFileLoader:
-        # pylint: disable=no-value-for-parameter, deprecated-method
-        mod = SourceFileLoader(modname, modfile).load_module()
-    else:
-        for suff in imp.get_suffixes():                 # pragma: part covered
-            if suff[0] == '.py':
-                break
-
-        with open(modfile, 'r') as f:
-            # pylint: disable=undefined-loop-variable
-            mod = imp.load_module(modname, f, modfile, suff)
+    # pylint: disable=no-value-for-parameter, deprecated-method
+    mod = SourceFileLoader(modname, modfile).load_module()
 
     return mod

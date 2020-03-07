@@ -4,6 +4,7 @@
 """Helpers for coverage.py tests."""
 
 import glob
+import importlib
 import os
 import re
 import shutil
@@ -11,7 +12,6 @@ import subprocess
 
 from unittest_mixins import ModuleCleaner
 
-from coverage.backward import invalidate_import_caches
 from coverage.misc import output_encoding
 
 
@@ -127,7 +127,7 @@ class SuperModuleCleaner(ModuleCleaner):
         if os.path.exists("__pycache__"):
             shutil.rmtree("__pycache__")
 
-        invalidate_import_caches()
+        importlib.invalidate_caches()
 
 
 # Map chars to numbers for arcz_to_arcs
