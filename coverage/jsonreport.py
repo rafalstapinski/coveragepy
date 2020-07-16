@@ -15,11 +15,14 @@ from coverage.results import Numbers
 class JsonReporter(object):
     """A reporter for writing JSON coverage results."""
 
-    def __init__(self, coverage):
+    def __init__(self, coverage, return_data=False):
         self.coverage = coverage
         self.config = self.coverage.config
         self.total = Numbers()
         self.report_data = {}
+
+        self.return_data = return_data
+
 
     def report(self, morfs, outfile=None):
         """Generate a json report for `morfs`.
@@ -63,6 +66,9 @@ class JsonReporter(object):
                 'covered_branches': self.total.n_executed_branches,
                 'missing_branches': self.total.n_missing_branches,
             })
+
+        if self.return_data:
+            return self.report_data
 
         json.dump(
             self.report_data,

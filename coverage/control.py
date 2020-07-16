@@ -971,7 +971,7 @@ class Coverage(object):
     def json_report(
         self, morfs=None, outfile=None, ignore_errors=None,
         omit=None, include=None, contexts=None, pretty_print=None,
-        show_contexts=None
+        show_contexts=None, return_data=False
     ):
         """Generate a JSON report of coverage results.
 
@@ -990,7 +990,7 @@ class Coverage(object):
             json_output=outfile, report_contexts=contexts, json_pretty_print=pretty_print,
             json_show_contexts=show_contexts
         ):
-            return render_report(self.config.json_output, JsonReporter(self), morfs)
+            return render_report(self.config.json_output, JsonReporter(self, return_data=return_data), morfs)
 
     def sys_info(self):
         """Return a list of (key, value) pairs showing internal information."""
