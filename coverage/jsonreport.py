@@ -119,11 +119,9 @@ class JsonReporter(object):
                 )
                 called_functions.add(called_function)
 
-            # measured_files[file_reporter.relative_filename()] = self.report_one_file(
-            #     coverage_data, analysis
-            # )
+            measured_files[file_reporter.relative_filename()] = file_report
 
-        self.report_data["executed_modules"] = called_functions
+        self.report_data["executed_modules"] = list(called_functions)
 
         self.report_data["files"] = measured_files
 
